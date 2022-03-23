@@ -5,66 +5,37 @@ Yet another grep implementation :-)
 """
 
 import sys
-import getopt
-
-def print_help (error_message = ''):
-    """ Print the help message for this program """
-    if isinstance (error_message, str) and len (error_message) > 0:
-        print ("ERROR: ", error_message)
-
-    # This is a simplified help message just for this exercise
-    print ('Usage: grep.py -r, --regex myregularexpression [OPTIONAL_OPTIONS]')
+import argparse
 
 def main (argv):
     """ Main function """
-    param_debug     = False
-    param_underline = False
-    param_color     = False
-    param_machine   = False
-    param_regex     = ''
-    param_files     = ''
 
-    if len (sys.argv) <= 1:
-        print_help ('Not enough parameters')
-        sys.exit   (1)
+    arg_parser = argparse.ArgumentParser (description = 'Yet another grep implementation')
 
-    try:
-        opts, _ = getopt.getopt (
-            argv,
-            "hucmr:f:",
-            ["help", "underline", "colo", "color", "machine", "regex=","files="]
-        )
-    except getopt.GetoptError:
-        print_help ()
-        sys.exit   (2)
+    arg_parser.add_argument ('-r', '--regex', help = 'the regular expression to search for',
+                        dest='regex', required = True, type = str)
 
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            print_help ()
-            sys.exit   (0)
-        elif opt in ("-u", "--underline"):
-            param_underline = True
-        elif opt in ("-c", "--colo", "--color"):
-            if not param_underline:
-                param_color     = True
-        elif opt in ("-m", "--machine"):
-            if not param_underline and not param_color:
-                param_machine   = True
-        elif opt in ("-r", "--regex"):
-            param_regex = arg
-        elif opt in ("-f", "--files"):
-            param_files = arg
+    arg_parser.add_argument ('-f', '--files', help = 'a list of ﬁles to search in',
+                        default = sys.stdin, nargs = '?', type = argparse.FileType ('r'))
 
-    if not isinstance (param_regex, str) or len (param_regex) <= 0:
-        print_help ()
-        sys.exit   (3)
+    arg_parser.add_argument ('-d', '--debug', help = 'show additional debug information',
+                        default = False, action = 'store_true')
 
-    if param_debug:
-        print ("Parameter underline is set to ", bool (param_underline))
-        print ("Parameter color is set to     ", bool (param_color))
-        print ("Parameter machine is set to   ", param_machine)
-        print ("Parameter regex is set to     ", param_regex)
-        print ("Parameter files is set to     ", param_files)
+    xor_options = arg_parser.add_mutually_exclusive_group ()
+
+    xor_options.add_argument ('-u', '--underline', help = '^ printed underneath the matched text',
+                        default = False, action = 'store_true')
+
+    xor_options.add_argument ('-c', '--colo', help = 'the matched text is highlighted in color',
+                        default = False, action = 'store_true')
+
+    xor_options.add_argument ('-m', '--machine', help = 'print the output in the agreed format',
+                        default = False, action = 'store_true')
+
+    arguments = arg_parser.parse_args (args = argv)
+
+    if arguments.debug is True:
+        print (arguments)
 
 if __name__ == "__main__":
     main (sys.argv[1:])
