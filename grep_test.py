@@ -12,7 +12,7 @@ from grep import (
     print_help
 )
 
-ADDITIONAL_HELP_LINE = "Usage: grep.py -r, --regexp myregularexpression [OPTIONAL_OPTIONS]\n"
+ADDITIONAL_HELP_LINE = "Usage: grep.py -r, --regex myregularexpression [OPTIONAL_OPTIONS]\n"
 
 class GrepTest (unittest.TestCase):
     """ Init test class """
@@ -114,17 +114,50 @@ class GrepTest (unittest.TestCase):
         """ Test 3.3: -h and --help are the only parameters """
         with self.assertRaises (SystemExit):
             with patch ('sys.stdout', new = StringIO ()) as output:
-                main (['-h --help'])
+                main (['-h', '--help'])
         self.assertEqual (output.getvalue (), ADDITIONAL_HELP_LINE)
 
     def test_main_h_and_a_madeup_help_parameters (self):
         """ Test 3.4: -h and the made-up parameter --hwlp are the only parameters """
         with self.assertRaises (SystemExit):
             with patch ('sys.stdout', new = StringIO ()) as output:
-                main (['-h --hwlp'])
+                main (['-h', '--hwlp'])
         self.assertEqual (output.getvalue (), ADDITIONAL_HELP_LINE)
 
+    def test_main_h_and_another_valid_parameters (self):
+        """ Test 3.5: -h and another valid parameter are the only parameters """
+        with self.assertRaises (SystemExit):
+            with patch ('sys.stdout', new = StringIO ()) as output:
+                main (['-h', '--files'])
+        self.assertEqual (output.getvalue (), ADDITIONAL_HELP_LINE)
 
+    def test_main_help_and_another_valid_parameters_1 (self):
+        """ Test 3.6: --help and another valid parameter are the only parameters """
+        with self.assertRaises (SystemExit):
+            with patch ('sys.stdout', new = StringIO ()) as output:
+                main (['--help', '--files'])
+        self.assertEqual (output.getvalue (), ADDITIONAL_HELP_LINE)
+
+    def test_main_help_and_another_valid_parameters_2 (self):
+        """ Test 3.7: --help and another valid, mandatory parameter are the only parameters """
+        with self.assertRaises (SystemExit):
+            with patch ('sys.stdout', new = StringIO ()) as output:
+                main (['--help', '--regex'])
+        self.assertEqual (output.getvalue (), ADDITIONAL_HELP_LINE)
+
+    def test_main_r_parameter (self):
+        """ Test 4.1: -r is the only parameter and is empty """
+        with self.assertRaises (SystemExit):
+            with patch ('sys.stdout', new = StringIO ()) as output:
+                main (['-r'])
+        self.assertEqual (output.getvalue (), ADDITIONAL_HELP_LINE)
+
+    def test_main_regex_parameter (self):
+        """ Test 4.2: --regex is the only parameter and is empty """
+        with self.assertRaises (SystemExit):
+            with patch ('sys.stdout', new = StringIO ()) as output:
+                main (['--regex'])
+        self.assertEqual (output.getvalue (), ADDITIONAL_HELP_LINE)
 
 if __name__ == "__main__":
     unittest.main ()

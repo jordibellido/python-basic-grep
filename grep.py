@@ -13,7 +13,7 @@ def print_help (error_message = ''):
         print ("ERROR: ", error_message)
 
     # This is a simplified help message just for this exercise
-    print ('Usage: grep.py -r, --regexp myregularexpression [OPTIONAL_OPTIONS]')
+    print ('Usage: grep.py -r, --regex myregularexpression [OPTIONAL_OPTIONS]')
 
 def main (argv):
     """ Main function """
