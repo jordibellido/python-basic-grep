@@ -4,7 +4,6 @@ Search class
 
 import re
 import sys
-from   io import TextIOWrapper
 from   os import access, R_OK
 from   os.path import isfile
 
@@ -116,33 +115,50 @@ class Search:
 
         :return: nothing
         """
-        current_result = []
+        current_line_no = 0
+        current_result  = []
 
         for element in self.files:
             if isinstance (element, str):
                 # The input comes from the standard input stream
-                current_line_result = re.findall (self.regex, element, re.ASCII)
+                for match in re.finditer (self.regex, element, re.ASCII):
+                    current_result.append (
+                        {
+                            'start_pos': match.start (), 'end_pos': match.end (),
+                            'line_no': current_line_no, 'line_text': element.rstrip ()
+                        }
+                    )
 
-                if len (current_line_result) > 0:
-                    current_result.append (current_line_result)
-                    self.results['stdin'] = current_result
+                    current_line_no += 1
+
+                if len (current_result) > 0:
+                    self.results = {'stdin': current_result}
 
             else:
                 # The input comes from a file stored in a file system
                 for line in open (file = element.name, mode = 'r', encoding = 'ASCII'):
-                    current_line_result = re.findall (self.regex, line, re.ASCII)
+                    for match in re.finditer (self.regex, line, re.ASCII):
+                        current_result.append (
+                            {
+                                'start_pos': match.start (), 'end_pos': match.end (),
+                                'line_no': current_line_no, 'line_text': line.rstrip ()
+                            }
+                        )
 
-                    if len (current_line_result) > 0:
-                        current_result.append (current_line_result)
+                    current_line_no += 1
 
                 if len (current_result) > 0:
-                    self.results[element.name] = current_result
+                    self.results = {element.name: current_result}
+
 
     def print_results (self):
         """
         Print the results from the last regex search according to the given parameters.
+        The script's output format should be: file_name line_number line
 
         :return: nothing
         """
         if len (self.results) > 0:
-            print (self.results)
+            for file, result in self.results.items ():
+                for match in result:
+                    print (f"{file} {match['line_no']} {match['line_text'].rstrip ()}")

@@ -14,19 +14,17 @@ sample_100MB_file_with_text = tempfile.NamedTemporaryFile (mode = 'w', prefix = 
 sample_100MB_file_results   = tempfile.NamedTemporaryFile (mode = 'w', prefix = 'search_test-')
 
 # Generate a 100 MB file from the initial text seed. The sample file is exactly 1024 bytes.
-with open (f'{sample_100MB_file_with_text.name}', 'w', encoding = 'ASCII') as fout:
+with open (sample_100MB_file_with_text.name, 'w', encoding = 'ASCII') as fout:
     text_file = open ('data/sample01.txt', 'r', encoding = 'ASCII')
     fout.write (text_file.read () * (100 * 1024))
     text_file.close ()
 
 # Generate the search result for a known regexp for the sample file:
 with open (f'{sample_100MB_file_results.name}', 'w', encoding = 'ASCII') as fout:
-    text_file = open ('data/result01.txt', 'r', encoding = 'ASCII')
-    fout.write ('[')
-    fout.write (text_file.read () * ((100 * 1024) - 1))
-    fout.write ("['Lorem']")
-    fout.write (']')
-    text_file.close ()
+    fout.write (f"{sample_100MB_file_with_text.name} 0 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis velit ac enim tristique faucibus. Proin dapibus arcu eget massa convallis posuere malesuada vel sapien.\n")
+    for current_line in range (10, ((100 * 1024) - 1), 10):
+        fout.write (f"{sample_100MB_file_with_text.name} {current_line} Morbi tempor neque vel convallis commodo. Phasellus velit lacus, accumsan sed dolor eget, egestas faucibus nisl. In vel velit purusLorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis velit ac enim tristique faucibus. Proin dapibus arcu eget massa convallis posuere malesuada vel sapien.\n")
+
 
 
 ##### SAMPLE FILE 02
@@ -43,11 +41,11 @@ def test_generated_files ():
     # There are (100 * 1024) occurences of the Lorem word, which is 11-char long,
     # plus the starting and closing bracket, minus the last comma and space
     # (which are not necessary): (100 * 11 * 1024) + 2 - 1 - 1
-    assert os.path.getsize (sample_100MB_file_results.name)   == (100 * 11 * 1024)
+    assert os.path.getsize (sample_100MB_file_results.name) == 3480598
 
     # SAMPLE FILES 02
     assert os.path.getsize (SAMPLE_SQL_FILE_WITH_TEXT) == 86561
-    assert os.path.getsize (SAMPLE_SQL_FILE_RESULTS)   == 1279
+    assert os.path.getsize (SAMPLE_SQL_FILE_RESULTS)   == 12538
 
 
 
@@ -394,7 +392,8 @@ def test_files_no_permissions ():
 
 def test_search_ok_1 (capsys):
     """ Test MAIN-043: search finishes succesfully 1 """
-    s043 = Search (r'Lorem', [sample_100MB_file_with_text], False, False, False)
+    tiow043 = open (sample_100MB_file_with_text.name, 'r', encoding = "UTF-8")
+    s043 = Search (r'Lorem', [tiow043], False, False, False)
     s043.re_search ()
     s043.print_results ()
 
