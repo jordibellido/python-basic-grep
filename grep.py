@@ -7,6 +7,8 @@ Yet another grep implementation :-)
 import sys
 import argparse
 
+from search import Search
+
 def main (argv):
     """ Main function """
 
@@ -16,7 +18,7 @@ def main (argv):
                         dest='regex', required = True, type = str)
 
     arg_parser.add_argument ('-f', '--files', help = 'a list of ﬁles to search in',
-                        default = sys.stdin, nargs = '?', type = argparse.FileType ('r'))
+                        default = sys.stdin, nargs = '+', type = argparse.FileType ('r'))
 
     arg_parser.add_argument ('-d', '--debug', help = 'show additional debug information',
                         default = False, action = 'store_true')
@@ -36,6 +38,10 @@ def main (argv):
 
     if arguments.debug is True:
         print (arguments)
+
+    new_search = Search      (arguments.regex, arguments.files, arguments.underline, arguments.colo, arguments.machine)
+    new_search.re_search     ()
+    new_search.print_results ()
 
 if __name__ == "__main__":
     main (sys.argv[1:])

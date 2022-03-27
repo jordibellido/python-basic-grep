@@ -13,7 +13,6 @@ HELP_TEXT_LINE_3 = '__main__.py: error: unrecognized arguments: -w'
 ##### Tests for the function 'main'
 def test_string_is_empty (capsys):
     """ Test MAIN-001: string is empty """
-
     with pytest.raises (SystemExit) as pytest_wrapped_e:
         main ('')
         captured = capsys.readouterr ()
@@ -51,7 +50,7 @@ def test_main_with_a_madeup_argument_1 (capsys):
 def test_main_with_a_madeup_argument_2 (capsys):
     """ Test MAIN-004: a valid argument and a made-up argument are passed """
     with pytest.raises (SystemExit) as pytest_wrapped_e:
-        main (['-r "*"', '-w'])
+        main (['-r', '"*"', '-w'])
         captured = capsys.readouterr ()
 
         lines = captured.out.split (linesep)
@@ -180,20 +179,28 @@ def test_main_r_parameter_2 (capsys):
         assert lines[1] == '__main__.py: error: argument -r/--regex: expected one argument'
 
 def test_main_r_parameter_3 (capsys):
-    """ Test MAIN-015: only a valid -r argument is passed """
-    main (['-r "aaa"'])
-    captured = capsys.readouterr ()
+    """ Test MAIN-015: the -r and -d arguments are passed """
+    with pytest.raises (SystemExit) as pytest_wrapped_e:
+        main (['-r', '-d'])
+        captured = capsys.readouterr ()
 
-    lines = captured.out.split (linesep)
-    assert lines[0] == ''
+        lines = captured.out.split (linesep)
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 2
+        assert lines[0] == HELP_TEXT_LINE_1
+        assert lines[1] == '__main__.py: error: argument -r/--regex: expected one argument'
 
 def test_main_r_parameter_4 (capsys):
-    """ Test MAIN-016: only a valid --regex argument is passed """
-    main (['--regex', 'README.md'])
-    captured = capsys.readouterr ()
+    """ Test MAIN-015: the -r and and the made-up -x arguments are passed """
+    with pytest.raises (SystemExit) as pytest_wrapped_e:
+        main (['-r', '-x'])
+        captured = capsys.readouterr ()
 
-    lines = captured.out.split (linesep)
-    assert lines[0] == ''
+        lines = captured.out.split (linesep)
+        assert pytest_wrapped_e.type == SystemExit
+        assert pytest_wrapped_e.value.code == 2
+        assert lines[0] == HELP_TEXT_LINE_1
+        assert lines[1] == '__main__.py: error: argument -r/--regex: expected one argument'
 
 def test_main_f_parameter_1 (capsys):
     """ Test MAIN-017: only the -f argument is passed """
@@ -221,15 +228,15 @@ def test_main_f_parameter_2 (capsys):
 
 def test_main_f_parameter_3 (capsys):
     """ Test MAIN-019: arguments -r and --files are passed """
-    main (['-r', '*', '--files'])
+    main (['-r', 'nonrf3mklr431mkrkfmlrr', '-fdata/sample01.txt'])
     captured = capsys.readouterr ()
 
     lines = captured.out.split (linesep)
     assert lines[0] == ''
 
 def test_main_d_parameter_1 (capsys):
-    """ Test MAIN-020: the -r and the -d parameters are passed """
-    main (['-r', 'dummyregexp', '-d'])
+    """ Test MAIN-020: the -r, the -f and the -d parameters are passed """
+    main (['-r', 'dummyregexp', '-d', '-fdata/sample01.txt'])
     captured = capsys.readouterr ()
 
     lines = captured.out.split (linesep)
@@ -237,8 +244,8 @@ def test_main_d_parameter_1 (capsys):
     assert lines[0].endswith ("machine=False, regex='dummyregexp', underline=False)")
 
 def test_main_d_parameter_2 (capsys):
-    """ Test MAIN-021: the --regex and the --debug parameters are passed """
-    main (['--regex', 'dummyregexp', '--debug'])
+    """ Test MAIN-021: the --regex, the -f and the --debug parameters are passed """
+    main (['--regex', 'dummyregexp', '--debug', '-fdata/sample01.txt'])
     captured = capsys.readouterr ()
 
     lines = captured.out.split (linesep)
@@ -246,8 +253,8 @@ def test_main_d_parameter_2 (capsys):
     assert lines[0].endswith ("machine=False, regex='dummyregexp', underline=False)")
 
 def test_main_d_parameter_3 (capsys):
-    """ Test MAIN-022: the --regex, the --machine and the --debug parameters are passed """
-    main (['--machine', '--regex', 'dummyregexp', '--debug'])
+    """ Test MAIN-022: the --regex, the -f, the --machine and the --debug parameters are passed """
+    main (['--machine', '--regex', 'dummyregexp', '--debug', '-fdata/sample01.txt'])
     captured = capsys.readouterr ()
 
     lines = captured.out.split (linesep)
@@ -255,8 +262,8 @@ def test_main_d_parameter_3 (capsys):
     assert lines[0].endswith ("machine=True, regex='dummyregexp', underline=False)")
 
 def test_main_d_parameter_4 (capsys):
-    """ Test MAIN-023: the -r, the --underline and the -d parameters are passed """
-    main (['--underline', '-r', 'dummyregexp', '-d'])
+    """ Test MAIN-023: the -r, the -f, the --underline and the -d parameters are passed """
+    main (['--underline', '-r', 'dummyregexp', '-d', '-fdata/sample01.txt'])
     captured = capsys.readouterr ()
 
     lines = captured.out.split (linesep)
@@ -264,8 +271,8 @@ def test_main_d_parameter_4 (capsys):
     assert lines[0].endswith ("machine=False, regex='dummyregexp', underline=True)")
 
 def test_main_d_parameter_5 (capsys):
-    """ Test MAIN-024: the -r, the --colo and the --debug parameters are passed """
-    main (['--colo', '-r', 'dummyregexp', '--debug'])
+    """ Test MAIN-024: the -r, the -f, the --colo and the --debug parameters are passed """
+    main (['--colo', '-r', 'dummyregexp', '--debug', '-fdata/sample01.txt'])
     captured = capsys.readouterr ()
 
     lines = captured.out.split (linesep)
@@ -273,8 +280,8 @@ def test_main_d_parameter_5 (capsys):
     assert lines[0].endswith ("machine=False, regex='dummyregexp', underline=False)")
 
 def test_main_d_parameter_6 (capsys):
-    """ Test MAIN-025: the -r, the -m and the -d parameters are passed """
-    main (['-m', '-r', 'dummyregexp', '-d'])
+    """ Test MAIN-025: the -r, the -f, the -m and the -d parameters are passed """
+    main (['-m', '-r', 'dummyregexp', '-d', '-fdata/sample01.txt'])
     captured = capsys.readouterr ()
 
     lines = captured.out.split (linesep)
