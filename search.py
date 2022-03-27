@@ -162,3 +162,10 @@ class Search:
             for file, result in self.results.items ():
                 for match in result:
                     print (f"{file} {match['line_no']} {match['line_text'].rstrip ()}")
+
+                    if self.underline is True:
+                        start_pos       = len (file) + 1 + len (str (match['line_no'])) + 1
+                        match_start_pos = start_pos + match['start_pos']
+                        match_end_pos   = start_pos + match['end_pos']
+                        highlight_text  = '^' * (match_end_pos - match_start_pos)
+                        print ((' ' * match_start_pos) + ('^' * (match_end_pos - match_start_pos)))
