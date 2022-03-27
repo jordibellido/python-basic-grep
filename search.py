@@ -161,7 +161,12 @@ class Search:
         if len (self.results) > 0:
             for file, result in self.results.items ():
                 for match in result:
-                    print (f"{file} {match['line_no']} {match['line_text'].rstrip ()}")
+                    if self.machine is True:
+                        # Expected output: file_name:line_number:start_position:matched_text
+                        print (f"{file}:{match['line_no']}:{match['start_pos']}:{match['line_text'].rstrip ()}")
+                    else:
+                        # Expected output: file_name line_number line
+                        print (f"{file} {match['line_no']} {match['line_text'].rstrip ()}")
 
                     if self.underline is True:
                         start_pos       = len (file) + 1 + len (str (match['line_no'])) + 1
