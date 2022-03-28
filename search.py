@@ -43,28 +43,6 @@ class Search:
                 self.files = sys.stdin
             elif isinstance (self.files, str) and len (self.files) <= 0:
                 raise ValueError ('The parameter files is empty')
-            elif 'pytest' in sys.argv[0]:
-                # Try to determine if the input has been redirected by pytest to NULL.
-                # ELSE case: we will assume that the files parameter is an
-                #            object with type _pytest.capture.DontReadFromInput.
-                if (
-                       isinstance (self.files, bool)
-                    or isinstance (self.files, int)
-                    or isinstance (self.files, float)
-                    or isinstance (self.files, complex)
-                    or isinstance (self.files, list)
-                    or isinstance (self.files, tuple)
-                    or isinstance (self.files, range)
-                    or isinstance (self.files, dict)
-                    or isinstance (self.files, set)
-                    or isinstance (self.files, frozenset)
-                    or isinstance (self.files, bytes)
-                    or isinstance (self.files, bytearray)
-                    or isinstance (self.files,  memoryview)
-                ):
-                    raise ValueError (
-                        f"Invalid type for the parameter files: expected <list> or <string> or stdin, got {type (self.files)}"
-                    )
             elif not hasattr (self.files, 'name') or self.files.name != '<stdin>':
                 raise ValueError ('The parameter files is not stdin, nor a string nor a list')
 
