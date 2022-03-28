@@ -33,6 +33,12 @@ SAMPLE_SQL_FILE_RESULTS   = 'data/result02.txt'
 
 
 
+##### SAMPLE FILE 03
+SAMPLE_CARL_SAGAN_FILE_WITH_TEXT = 'data/sample03.txt'
+SAMPLE_CARL_SAGAN_FILE_RESULTS   = 'data/result03.txt'
+
+
+
 ##### 0. DOUBLE CHECK THE GENERATION OF THE TEST TEXT FILES
 def test_generated_files ():
     """ Test MAIN-000: test generated files sizes """
@@ -47,6 +53,10 @@ def test_generated_files ():
     # SAMPLE FILES 02
     assert os.path.getsize (SAMPLE_SQL_FILE_WITH_TEXT) == 86561
     assert os.path.getsize (SAMPLE_SQL_FILE_RESULTS)   == 12538
+
+    # SAMPLE FILES 03
+    assert os.path.getsize (SAMPLE_CARL_SAGAN_FILE_WITH_TEXT) == 2978
+    assert os.path.getsize (SAMPLE_CARL_SAGAN_FILE_RESULTS)   == 5240
 
 
 
@@ -105,6 +115,20 @@ def test_search_ok_4 (capsys):
 
     assert len (captured_output.out) == 0
     assert captured_output.out       == ''
+
+def test_search_ok_5 (capsys):
+    """ Search finishes succesfully 5 - 9 results """
+    tiowt = open (SAMPLE_CARL_SAGAN_FILE_WITH_TEXT, 'r', encoding = 'ASCII')
+    tiowr = open (SAMPLE_CARL_SAGAN_FILE_RESULTS,   'r', encoding = 'ASCII')
+
+    search = Search (r'billions', [tiowt], False, False, False)
+    search.re_search ()
+    search.print_results ()
+
+    captured_output        = capsys.readouterr ()
+    expected_results_text  = tiowr.read ()
+
+    assert expected_results_text in captured_output.out
 
 
 
