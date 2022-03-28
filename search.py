@@ -25,7 +25,18 @@ class Search:
         self.underline = underline
         self.color     = color
         self.machine   = machine
-        self.results   = {}
+
+        # Where the pair (start_pos, end_pos) will be stored for matches
+        self.results     = []
+
+        # Where the text lines will be stored for matches
+        self.lines       = []
+
+        # Where the text line numbers will be stored for matches
+        self.line_no     = []
+
+        # Where the file index from self.files will be stored for matches
+        self.files_index = []
 
         if not isinstance (regex, str):
             raise ValueError ('The parameter regex is not a string variable')
@@ -115,41 +126,30 @@ class Search:
 
         :return: nothing
         """
-        current_line_no = 0
-        current_result  = []
+        current_line_number        = 0
+        current_match_index        = 0
+        current_file_index         = 0
+        previous_line_number_match = -1
 
         for element in self.files:
-            if isinstance (element, str):
-                # The input comes from the standard input stream
-                for match in re.finditer (self.regex, element, re.ASCII):
-                    current_result.append (
-                        {
-                            'start_pos': match.start (), 'end_pos': match.end (),
-                            'line_no': current_line_no, 'line_text': element.rstrip ()
-                        }
-                    )
+            for line in open (file = element.name, mode = 'r', encoding = 'ASCII'):
+                for match in re.finditer (self.regex, line, re.ASCII):
+                    if previous_line_number_match == current_line_number:
+                        # There is at least an additional match within the same line
+                        current_match_index -= 1
+                        self.results[current_match_index].append ([match.start (), match.end ()])
+                    else:
+                        self.files_index.append (current_file_index)
+                        self.line_no.append     (current_line_number)
+                        self.lines.append       (line)
+                        self.results.append     ([[match.start (), match.end ()]])
+                        current_match_index += 1
+                        previous_line_number_match = current_line_number
 
-                    current_line_no += 1
+                current_line_number += 1
 
-                if len (current_result) > 0:
-                    self.results = {'stdin': current_result}
-
-            else:
-                # The input comes from a file stored in a file system
-                for line in open (file = element.name, mode = 'r', encoding = 'ASCII'):
-                    for match in re.finditer (self.regex, line, re.ASCII):
-                        current_result.append (
-                            {
-                                'start_pos': match.start (), 'end_pos': match.end (),
-                                'line_no': current_line_no, 'line_text': line.rstrip ()
-                            }
-                        )
-
-                    current_line_no += 1
-
-                if len (current_result) > 0:
-                    self.results = {element.name: current_result}
-
+            current_line_number = 1
+            current_file_index += 1
 
     def print_results (self):
         """
@@ -158,27 +158,17 @@ class Search:
 
         :return: nothing
         """
+        current_line_number_index = 0
+
         if len (self.results) <= 0:
             return
 
-        for file, result in self.results.items ():
-            for match in result:
-                if self.machine is True:
-                    # Expected output: file_name:line_number:start_position:matched_text
-                    print (f"{file}:{match['line_no']}:{match['start_pos']}:{match['line_text'].rstrip ()}")
-                elif self.color is True:
-                    # Expected output: the same as the default one, but the matched text is colorized
-                    start_pos       = 0
-                    match_start_pos = start_pos + match['start_pos']
-                    match_end_pos   = start_pos + match['end_pos']
-                    colorized_text  = f"{match['line_text'][0:match_start_pos]}\033[1;31m{match['line_text'][match_start_pos:match_end_pos]}\033[00m{match['line_text'][match_end_pos:]}"
-                    print (f"{file} {match['line_no']} {colorized_text.rstrip ()}")
-                else:
-                    # Expected output: file_name line_number line
-                    print (f"{file} {match['line_no']} {match['line_text'].rstrip ()}")
+        for result in self.results:
+            if len (result) == 1:
+                current_line_number_index += 1
 
-                    if self.underline is True:
-                        start_pos       = len (file) + 1 + len (str (match['line_no'])) + 1
-                        match_start_pos = start_pos + match['start_pos']
-                        match_end_pos   = start_pos + match['end_pos']
-                        print ((' ' * match_start_pos) + ('^' * (match_end_pos - match_start_pos)))
+            print (
+                f"{self.files[self.files_index[current_line_number_index]].name}",
+                f"{self.line_no[current_line_number_index]}",
+                f"{self.lines[current_line_number_index].rstrip ()}"
+            )
