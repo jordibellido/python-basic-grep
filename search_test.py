@@ -21,9 +21,9 @@ with open (sample_100MB_file_with_text.name, 'w', encoding = 'ASCII') as fout:
 
 # Generate the search result for a known regexp for the sample file:
 with open (f'{sample_100MB_file_results.name}', 'w', encoding = 'ASCII') as fout:
-    fout.write (f"{sample_100MB_file_with_text.name} 0 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis velit ac enim tristique faucibus. Proin dapibus arcu eget massa convallis posuere malesuada vel sapien.\n")
+    fout.write (f"{sample_100MB_file_with_text.name} 1 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis velit ac enim tristique faucibus. Proin dapibus arcu eget massa convallis posuere malesuada vel sapien.\n")
     for current_line in range (10, ((100 * 1024) - 1), 10):
-        fout.write (f"{sample_100MB_file_with_text.name} {current_line} Morbi tempor neque vel convallis commodo. Phasellus velit lacus, accumsan sed dolor eget, egestas faucibus nisl. In vel velit purusLorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis velit ac enim tristique faucibus. Proin dapibus arcu eget massa convallis posuere malesuada vel sapien.\n")
+        fout.write (f"{sample_100MB_file_with_text.name} {current_line + 1} Morbi tempor neque vel convallis commodo. Phasellus velit lacus, accumsan sed dolor eget, egestas faucibus nisl. In vel velit purusLorem ipsum dolor sit amet, consectetur adipiscing elit. Donec venenatis velit ac enim tristique faucibus. Proin dapibus arcu eget massa convallis posuere malesuada vel sapien.\n")
 
 
 

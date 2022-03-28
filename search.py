@@ -115,7 +115,7 @@ class Search:
 
         :return: nothing
         """
-        current_line_no = 0
+        current_line_no = 1
         current_result  = []
 
         for element in self.files:
@@ -129,7 +129,7 @@ class Search:
                         }
                     )
 
-                    current_line_no += 1
+                current_line_no += 1
 
                 if len (current_result) > 0:
                     self.results = {'stdin': current_result}
@@ -148,7 +148,9 @@ class Search:
                     current_line_no += 1
 
                 if len (current_result) > 0:
-                    self.results = {element.name: current_result}
+                    self.results[element.name] = current_result
+                    current_result = []
+                    current_line_no = 1
 
 
     def print_results (self):
