@@ -158,26 +158,27 @@ class Search:
 
         :return: nothing
         """
-        if len (self.results) > 0:
-            for file, result in self.results.items ():
-                for match in result:
-                    if self.machine is True:
-                        # Expected output: file_name:line_number:start_position:matched_text
-                        print (f"{file}:{match['line_no']}:{match['start_pos']}:{match['line_text'].rstrip ()}")
-                    elif self.color is True:
-                        # Expected output: the same as the default one, but the matched text is colorized
-                        start_pos       = 0
+        if len (self.results) <= 0:
+            return
+
+        for file, result in self.results.items ():
+            for match in result:
+                if self.machine is True:
+                    # Expected output: file_name:line_number:start_position:matched_text
+                    print (f"{file}:{match['line_no']}:{match['start_pos']}:{match['line_text'].rstrip ()}")
+                elif self.color is True:
+                    # Expected output: the same as the default one, but the matched text is colorized
+                    start_pos       = 0
+                    match_start_pos = start_pos + match['start_pos']
+                    match_end_pos   = start_pos + match['end_pos']
+                    colorized_text  = f"{match['line_text'][0:match_start_pos]}\033[1;31m{match['line_text'][match_start_pos:match_end_pos]}\033[00m{match['line_text'][match_end_pos:]}"
+                    print (f"{file} {match['line_no']} {colorized_text.rstrip ()}")
+                else:
+                    # Expected output: file_name line_number line
+                    print (f"{file} {match['line_no']} {match['line_text'].rstrip ()}")
+
+                    if self.underline is True:
+                        start_pos       = len (file) + 1 + len (str (match['line_no'])) + 1
                         match_start_pos = start_pos + match['start_pos']
                         match_end_pos   = start_pos + match['end_pos']
-                        colorized_text  = f"{match['line_text'][0:match_start_pos]}\033[1;31m{match['line_text'][match_start_pos:match_end_pos]}\033[00m{match['line_text'][match_end_pos:]}"
-                        print (f"{file} {match['line_no']} {colorized_text.rstrip ()}")
-                    else:
-                        # Expected output: file_name line_number line
-                        print (f"{file} {match['line_no']} {match['line_text'].rstrip ()}")
-
-                        if self.underline is True:
-                            start_pos       = len (file) + 1 + len (str (match['line_no'])) + 1
-                            match_start_pos = start_pos + match['start_pos']
-                            match_end_pos   = start_pos + match['end_pos']
-                            highlight_text  = '^' * (match_end_pos - match_start_pos)
-                            print ((' ' * match_start_pos) + ('^' * (match_end_pos - match_start_pos)))
+                        print ((' ' * match_start_pos) + ('^' * (match_end_pos - match_start_pos)))
